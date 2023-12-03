@@ -53,7 +53,7 @@ namespace KinoZero
             }
             
             BaseItemHeight = BaseItem.GetComponent<RectTransform>().rect.width;
-            float temp = BaseItemHeight * TotalItemCount + ItemSpacing * (TotalItemCount + 1);
+            float temp = Mathf.Ceil((BaseItemHeight * TotalItemCount + ItemSpacing * (TotalItemCount + 1)) / collum) + BaseItemHeight * 2; 
             
             
             if (direction == Direction.Vertical)
@@ -73,6 +73,8 @@ namespace KinoZero
                         _items.Add(go.GetComponent<TestScrollListItem>());
                         go.GetComponentInChildren<TextMeshProUGUI>().SetText((j+t+1).ToString());
                         go.GetComponentInChildren<TestScrollListItem>().index = (j+t+1);
+                        go.GetComponentInChildren<TestScrollListItem>().collum = j;
+                        go.GetComponentInChildren<TestScrollListItem>().row = i;
                         if (j == collum - 1) 
                         {
                             t = j+t+1;
@@ -130,7 +132,7 @@ namespace KinoZero
             {
                 if(go.transform.position.y >= Viewport.position.y + BaseItemHeight/2)
                 {
-                    if (go.index <= TotalItemCount - BaseItemCount - 1  && go.index == sortedIndex[0].index)
+                    if (go.index <= TotalItemCount - BaseItemCount - 1  && go.index == sortedIndex[0+go.GetComponentInChildren<TestScrollListItem>().collum].index)
                     {
                         go.index += BaseItemCount;
                         go.GetComponentInChildren<TextMeshProUGUI>().SetText(go.index.ToString());
@@ -138,19 +140,26 @@ namespace KinoZero
                         // todo: Add data here
                         
                         //------------------------------------------------------------
-                        go.transform.position = sortedGameObjects[0].transform.position + Vector3.down * (BaseItemHeight + ItemSpacing);
+                        //sortedGameObjects[0].transform.position + Vector3.down * (BaseItemHeight + ItemSpacing);
+                        go.transform.position = new Vector3(go.transform.position.x,
+                            sortedGameObjects[0+go.GetComponentInChildren<TestScrollListItem>().collum].transform.position.y - (BaseItemHeight + ItemSpacing),
+                            go.transform.position.z);
                     }
                 }
-                else if(go.transform.position.y <= 0 - BaseItemHeight * 1.3f)
+                else if(go.transform.position.y <= 0 - BaseItemHeight)
                 {
-                    if (go.index >= BaseItemCount && go.index == sortedIndex[BaseItemCount-1].index)
+                    if (go.index >= BaseItemCount && go.index == sortedIndex[BaseItemCount-1 ].index)
                     {
+                        Debug.Log("someShit");
                         go.index -= BaseItemCount;
                         go.GetComponentInChildren<TextMeshProUGUI>().SetText(go.index.ToString());
                         //------------------------------------------------------------
                         // todo: Add data here
                         //------------------------------------------------------------
-                        go.transform.position = sortedGameObjects[BaseItemCount-1].transform.position + Vector3.up * (BaseItemHeight + ItemSpacing);
+                        //go.transform.position = sortedGameObjects[BaseItemCount-1-go.GetComponentInChildren<TestScrollListItem>().collum].transform.position + Vector3.up * (BaseItemHeight + ItemSpacing);
+                        go.transform.position = new Vector3(go.transform.position.x,
+                            sortedGameObjects[BaseItemCount-1 + go.GetComponentInChildren<TestScrollListItem>().collum - collum].transform.position.y + (BaseItemHeight + ItemSpacing),
+                            go.transform.position.z);
                     }
                 }
             }
